@@ -11,7 +11,6 @@ class ComportTemporal(TimedBehaviour):
         super(ComportTemporal, self).__init__(agent, time)
         self.agent = agent
         self.other = other
-        self.n = 0
 
     def on_time(self):
         super(ComportTemporal, self).on_time()
@@ -21,8 +20,7 @@ class ComportTemporal(TimedBehaviour):
         message = ACLMessage(ACLMessage.INFORM)
         message.set_protocol(ACLMessage.FIPA_REQUEST_PROTOCOL)
         message.add_receiver(AID(self.other))
-        self.n += 1
-        message.set_content(f"{self.agent.id} {self.agent.x} {self.agent.y} {self.agent.size} {self.agent.status}")
+        message.set_content(f"{self.agent.id} {self.agent.x} {self.agent.y} {self.agent.size} {self.agent.status} {self.agent.start_colision}")
         self.agent.send(message)
 
 class CarAgent(Agent):
@@ -41,9 +39,8 @@ class CarAgent(Agent):
         self.x = random.randint(30, 125 - self.size * 2)
         self.y = random.randint(30, 125 - self.size * 2)
         self.speed = 10 * 15 / self.size
-        
-        self.start_colision = False
-        self.vivo = True
+        self.colisionado = False
+        self.start_colision = 0
 
     def updateStatus(self):
         if self.y <= self.y1_limit:
@@ -63,20 +60,7 @@ class CarAgent(Agent):
     def move(self):
         if self.status == 1: self.x += self.speed   #Que se vaya a la derecha
         elif self.status == 2: self.x -= self.speed #Que se vaya  la izquierda
-        elif self.status == 3: 
-            self.y -= self.speed #Que se vaya para arriba
-            self.start_colision = True #Activar funcionalidad de colision
-        elif self.status == 4: self.y += self.speed #Que se vaya para abajo
-
-    def detect_collision(self, others):
-        for other in others:
-            if other != self and self.is_close_to(other):
-                self.avoid_collision()
-
-    def is_close_to(self, other):
-        distance_threshold = self.size + other.size
-        distance = ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5
-        return distance < distance_threshold
-
-    def avoid_collision(self):
-        self.vivo = False
+        elif self.status == 3: self.y -= self.speed #Que se vaya para arriba
+        elif self.status == 4: 
+            self.y += self.speed #Que se vaya para abajo
+            self.start_colision = 1
