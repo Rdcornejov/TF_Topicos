@@ -5,6 +5,7 @@ from pade.core.agent import Agent
 from pade.behaviours.protocols import TimedBehaviour
 from pade.acl.aid import AID
 
+
 class ComportTemporal(TimedBehaviour):
     def __init__(self, agent, other, time):
         super(ComportTemporal, self).__init__(agent, time)
@@ -21,15 +22,15 @@ class ComportTemporal(TimedBehaviour):
         message.set_protocol(ACLMessage.FIPA_REQUEST_PROTOCOL)
         message.add_receiver(AID(self.other))
         self.n += 1
-        message.set_content(f"{self.n} Hola Agente")
+        message.set_content(f"{self.agent.id} {self.agent.x} {self.agent.y} {self.agent.size} {self.agent.status}")
         self.agent.send(message)
-
 
 class CarAgent(Agent):
 
-    def __init__(self, aid, receiver, delay):
+    def __init__(self, aid, id, receiver, delay):
         super(CarAgent, self).__init__(aid=aid, debug=False)
         comp_temp = ComportTemporal(self,receiver, delay)
+        self.id = id
         self.behaviours.append(comp_temp)
         self.status = 2
         self.size = random.randint(10, 20)

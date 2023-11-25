@@ -4,9 +4,9 @@ from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import QFrame
 
 class Gui(QFrame):
-    def __init__(self, cars) -> None:
+    def __init__(self, agent) -> None:
         super(Gui, self).__init__()
-        self.cars = cars
+        self.agent = agent
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setFixedSize(640, 640)
 
@@ -14,7 +14,7 @@ class Gui(QFrame):
         painter = QPainter(self)
         pista = QImage("./Imagen/pista.png")
         painter.drawImage(0,0,pista)
-        for car in self.cars:
+        for car in self.agent.cars:
             # Cargar la imagen del pez
             if car.status == 1:
                 car_image = QImage("./Imagen/car_right.png")

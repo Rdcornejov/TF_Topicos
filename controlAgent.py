@@ -10,6 +10,15 @@ from pade.core.agent import Agent
 
 from gui import Gui
 
+class car:
+    def __init__(self, id, x, y, size, status):
+        self.id = id
+        self.x = x
+        self.y = y
+        self.size = size
+        self.status = status
+
+
 class MyTimedBehaviour(TimedBehaviour):
     def __init__(self, agent, time):
         super(MyTimedBehaviour, self).__init__(agent, time)
@@ -17,42 +26,59 @@ class MyTimedBehaviour(TimedBehaviour):
 
     def on_time(self):
         super(MyTimedBehaviour, self).on_time()
-        gui.update()
+        if self.agent.cont == self.agent.n:
+            gui.update()
+            self.agent.cont = 0
+        else:
+            print(self.agent.cont,"  no entra")
 
 class ControlAgent(Agent):
     delay = .2
-    def __init__(self, aid):
+    cont = 0
+    cars = []
+    def __init__(self, aid, n):
         super(ControlAgent, self).__init__(aid=aid, debug=False)
         mytimed = MyTimedBehaviour(self, self.delay)
         self.behaviours.append(mytimed)
+        self.n = n
+        for i in range(n):
+            self.cars.append(car(i,0,0,0,2))
 
     def react(self, message):
         super(ControlAgent, self).react(message)
-        display_message(self.aid.localname,f"{message.sender.name}: {message.content}")
-
+        palabra = str(message.content)
+        mensaje = palabra.split()
+        print(mensaje, len(mensaje))
+        if len(mensaje) == 5:
+            carro_encontrado = next(filter(lambda x: x.id == int(mensaje[0]), self.cars), None)
+            carro_encontrado.x =float(mensaje[1])
+            carro_encontrado.y = float(mensaje[2])
+            carro_encontrado.size = int(mensaje[3])
+            carro_encontrado.status= int(mensaje[4])
+            display_message(self.aid.localname,f"{message.sender.name}: {palabra} Car:{self.cont} - Cont: {self.cont}")
+            self.cont += 1
+       
 def agentsexec():
     start_loop(agents)
 
 if __name__ == '__main__':
     agents = []
-    cars = []
     num_cars = 5
     port = int(sys.argv[1])
     control_agent_name = 'control_agent_{}@localhost:{}'.format(port, port)
-    control_agent = ControlAgent(AID(name=control_agent_name))
+    control_agent = ControlAgent(AID(name=control_agent_name),num_cars)
+    agents.append(control_agent)
     c = 0
     for i in range(num_cars):
         c += 10
         car_agent_name = 'car_agent_{}@localhost:{}'.format(port + c, port + c)
-        car_agent = CarAgent(AID(name=car_agent_name),control_agent_name, .2)
-        cars.append(car_agent)
+        car_agent = CarAgent(AID(name=car_agent_name),i, control_agent_name, .2)
+        agents.append(car_agent)
 
-    agents.append(control_agent)
-    agents += cars
     x = threading.Thread(target=agentsexec)
     x.start()
     app = QApplication([])
-    gui = Gui(cars)
+    gui = Gui(control_agent)
     gui.show()
     app.exec()
     x.join()
