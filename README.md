@@ -1,4 +1,4 @@
-# Programación Concurrente y Distribuida
+# Tópicos de Ciencias de la Computación
 
 ## Trabajo Final
 
