@@ -5,7 +5,7 @@
 ### Integrantes:
 
 - Jefferson Espinal Atencia (u201919607)
-- Marc Diaz Quilia 
+- Marc Diaz Quilia (u202021530)
 - Ronaldo Cornejo Valencia (u201816502)
 
 ### Docente: 
